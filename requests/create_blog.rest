@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{
+    "title": "The lorem ipsum of life",
+    "author": "Me",
+    "url": "http://localhost:3003",
+    "likes": 1
+}
