@@ -1,0 +1,15 @@
+{
+  "name": "fullstack-open-part4",
+  "version": "1.0.0",
+  "description": "Blog list app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sylvebois/fullstack-open-part4.git"
+  },
+  "author": "Sylvebois",
+  "license": "ISC"
+}
