@@ -1,4 +1,5 @@
 const blogsRouter = require('express').Router()
+require('express-async-error')
 const Blog = require('../models/blog')
 
 blogsRouter.get('/', async (request, response) => {
@@ -7,18 +8,23 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.get('/:id', async (request, response, next) => {
+blogsRouter.get('/:id', async (request, response) => {
   const blog = await Blog.findById(request.params.id)
-  blog ? 
-    response.json(blog) :  
+  blog ?
+    response.json(blog) :
     response.status(404).end()
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
-  const result = await blog.save()
+  if (request.body.title && request.body.url) {
+    const blog = new Blog(request.body)
+    const result = await blog.save()
 
-  response.status(201).json(result)
+    response.status(201).json(result)
+  }
+  else {
+    response.status(400).json({ error: 'Missing title or url' })
+  }
 })
 
 /* TO-DO : Add error handling */
