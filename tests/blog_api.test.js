@@ -31,7 +31,7 @@ test('Check if unique identifier is id', async () => {
 describe('Blog creation checks', () => {
   test('Check if blog is added to MongoDB', async () => {
     const blogData = {
-      title: 'The lorem ipsum of life',
+      title: 'The normal data for a post',
       author: 'Me',
       url: 'http://localhost:3003',
       likes: 1
@@ -49,7 +49,7 @@ describe('Blog creation checks', () => {
 
   test('Likes defaulted to 0', async () => {
     const blog = new Blog({
-      title: 'The lorem ipsum of life',
+      title: 'The missing likes data for a post',
       author: 'Me',
       url: 'http://localhost:3003'
     })
@@ -61,24 +61,30 @@ describe('Blog creation checks', () => {
 
   test('Error 400 when missing title', async () => {
     const blog = new Blog({
-      author: 'Test',
+      author: 'Unknown author',
       url: 'http://localhost:3003',
       likes: 13
     })
-    const response = await blog.save()
 
-    expect(response.status).toBe(400)
+    await api
+      .post('/api/blogs')
+      .send(blog)
+      .set('Accept', 'application/json')
+      .expect(400)
   })
 
   test('Error 400 when missing url', async () => {
     const blog = new Blog({
-      title: 'The lorem ipsum of life',
+      title: 'The missing url for a post',
       author: 'Test',
       likes: 13
     })
-    const response = await blog.save()
 
-    expect(response.status).toBe(400)
+    await api
+      .post('/api/blogs')
+      .send(blog)
+      .set('Accept', 'application/json')
+      .expect(400)
   })
 })
 

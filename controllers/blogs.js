@@ -15,18 +15,16 @@ blogsRouter.get('/:id', async (request, response) => {
     response.status(404).end()
 })
 
-blogsRouter.post('/', async (request, response) => {
-  if (request.body.title && request.body.url) {
-    const blog = new Blog(request.body)
+blogsRouter.post('/', async (request, response, next) => {
+  const blog = new Blog(request.body)
+  
+  try {
     const result = await blog.save()
-
     response.status(201).json(result)
   }
-  else {
-    response.status(400).json({ error: 'Missing title or url' })
+  catch (err) {
+    next(err)
   }
 })
-
-/* TO-DO : Add error handling */
 
 module.exports = blogsRouter
