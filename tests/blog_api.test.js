@@ -15,17 +15,101 @@ beforeEach(async () => {
   await Promise.all(savePromises)
 })
 
-test('Get a list of all blogs', async () => {
-  const response = await api.get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
+describe('Group of Blogs reading checks', () => {
+  test('Get a list of all blogs', async () => {
+    const response = await api.get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-  expect(response.body).toHaveLength(BLOGS.length)
+    expect(response.body).toHaveLength(BLOGS.length)
+  })
+
+  test('Check if unique identifier is id', async () => {
+    const response = await api.get('/api/blogs/5a422a851b54a676234d17f7')
+    expect(response.body.id).toBeDefined()
+  })
 })
 
-test('Check if unique identifier is id', async () => {
-  const response = await api.get('/api/blogs/5a422a851b54a676234d17f7')
-  expect(response.body.id).toBeDefined()
+describe('Blog reading checks', () => {
+  test('Return the right blog', async () => {
+    const blog = {
+      id: '5a422a851b54a676234d17f7',
+      title: 'React patterns',
+      author: 'Michael Chan',
+      url: 'https://reactpatterns.com/',
+      likes: 7,
+    }
+
+    const response = await api.get('/api/blogs/5a422a851b54a676234d17f7')
+    expect(response.body).toEqual(blog)
+  })
+
+  test('Error 404 on unknow id', async () => {
+    await api
+      .get('/api/blogs/5a422a851b54a676234d17f0')
+      .set('Accept', 'application/json')
+      .send({ likes: 2 })
+      .expect(404)
+  })
+
+  test('Error 400 on invalid id', async () => {
+    await api
+      .get('/api/blogs/wrongId')
+      .set('Accept', 'application/json')
+      .send({ likes: 2 })
+      .expect(400)
+  })
+})
+describe('Blog update checks', () => {
+  test('Return the updated blog', async () => {
+    const awaitedData = {
+      id: '5a422a851b54a676234d17f7',
+      title: 'React patterns',
+      author: 'Michael Chan',
+      url: 'https://reactpatterns.com/',
+      likes: 2,
+    }
+
+    const response = await api
+      .put('/api/blogs/5a422a851b54a676234d17f7')
+      .set('Accept', 'application/json')
+      .send({ likes: 2 })
+
+    expect(response.body).toEqual(awaitedData)
+
+  })
+
+  test('Error 404 on unknow id', async () => {
+    await api
+      .put('/api/blogs/5a422a851b54a676234d17f0')
+      .expect(404)
+  })
+
+  test('Error 400 on invalid id', async () => {
+    await api
+      .put('/api/blogs/wrongId')
+      .expect(400)
+  })
+})
+describe('Blog deletion checks', () => {
+  test('Return 204 on valid id', async () => {
+    await api
+      .delete('/api/blogs/5a422a851b54a676234d17f7')
+      .set('Accept', 'application/json')
+      .expect(204)
+  })
+
+  test('Error 404 on unknow id', async () => {
+    await api
+      .delete('/api/blogs/5a422a851b54a676234d17f0')
+      .expect(404)
+  })
+
+  test('Error 400 on invalid id', async () => {
+    await api
+      .delete('/api/blogs/wrongId')
+      .expect(400)
+  })
 })
 
 describe('Blog creation checks', () => {
