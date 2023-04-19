@@ -3,7 +3,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 
-const BLOGS = require('./testData')
+const { BLOGS } = require('./testData')
 const Blog = require('../models/blog')
 
 beforeEach(async () => {
@@ -60,6 +60,7 @@ describe('Blog reading checks', () => {
       .expect(400)
   })
 })
+
 describe('Blog update checks', () => {
   test('Return the updated blog', async () => {
     const awaitedData = {
@@ -91,6 +92,7 @@ describe('Blog update checks', () => {
       .expect(400)
   })
 })
+
 describe('Blog deletion checks', () => {
   test('Return 204 on valid id', async () => {
     await api
