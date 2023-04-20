@@ -7,13 +7,13 @@ const api = supertest(app)
 const { USERS } = require('./testData')
 const User = require('../models/user')
 
-beforeEach(async () => { 
+beforeEach(async () => {
   await User.deleteMany({})
 
   const saltRounds = 10
   const passHash = await bcrypt.hash(USERS[0].password, saltRounds)
 
-  const defaultUser = new User({username: USERS[0].username, name: USERS[0].name, passHash })
+  const defaultUser = new User({ username: USERS[0].username, name: USERS[0].name, passHash })
   await defaultUser.save()
 })
 
@@ -30,6 +30,7 @@ describe('User creation checks', () => {
       .set('Accept', 'application/json')
       .send(user)
       .expect(201)
+      .expect('Content-Type', /application\/json/)
 
     expect(response.body.id).toBeDefined()
 
@@ -43,11 +44,15 @@ describe('User creation checks', () => {
       password: 'test'
     }
 
-    const response = await api
+    await api
       .post('/api/users')
       .set('Accept', 'application/json')
       .send(user)
       .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const users = await api.get('/api/users')
+    expect(users.body).toHaveLength(USERS.length)
   })
 
   test('Error 400 when missing password', async () => {
@@ -56,11 +61,15 @@ describe('User creation checks', () => {
       username: 'testing'
     }
 
-    const response = await api
+    await api
       .post('/api/users')
       .set('Accept', 'application/json')
       .send(user)
       .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const users = await api.get('/api/users')
+    expect(users.body).toHaveLength(USERS.length)
   })
 
   test('Error 400 when missing name', async () => {
@@ -69,18 +78,23 @@ describe('User creation checks', () => {
       password: 'test'
     }
 
-    const response = await api
+    await api
       .post('/api/users')
       .set('Accept', 'application/json')
       .send(user)
       .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const users = await api.get('/api/users')
+    expect(users.body).toHaveLength(USERS.length)
+
   })
 
   test('Error 400 and explicit message when username is already taken', async () => {
     const user = {
       username: 'root',
-      name:'root',
-      password: 'test'
+      name: 'root',
+      password: 'testingPass'
     }
 
     const response = await api
@@ -88,8 +102,12 @@ describe('User creation checks', () => {
       .set('Accept', 'application/json')
       .send(user)
       .expect(400)
+      .expect('Content-Type', /application\/json/)
 
-    console.log(response)
+    expect(response.body.error).toContain('expected `username` to be unique')
+
+    const users = await api.get('/api/users')
+    expect(users.body).toHaveLength(USERS.length)
   })
 })
 

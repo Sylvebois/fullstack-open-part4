@@ -3,13 +3,13 @@ const userRouter = require('express').Router()
 const User = require('../models/user')
 
 userRouter.get('/', async (request, response) => {
-  const users = await User.find({})
+  const users = await User.find({}).populate('blogs', { url: 0, likes: 0 })
   response.json(users)
 })
 
 userRouter.get('/:id', async (request, response, next) => {
   try {
-    const user = await Blog.findById(request.params.id)
+    const user = await User.findById(request.params.id)
     user ?
       response.json(user) :
       response.status(404).end()

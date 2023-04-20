@@ -54,7 +54,7 @@ const USERS = [
     username: 'root',
     name: 'Superuser',
     password: 'salainen',
-  }
+  },
 ]
 
 module.exports = { BLOGS, USERS }
