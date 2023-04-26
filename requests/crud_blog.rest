@@ -1,15 +1,17 @@
 POST http://localhost:3003/api/blogs
 content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkyMGMwN2FmMGJmNWE1M2E3ZmU1MCIsImlhdCI6MTY4MjUxNDkyOH0.qC7T5ZOj2OtTYJWsR-az19vpwRl7OB6_x7_PpZr0sSs
 
 {
-    "title": "The lorem ipsum of life",
-    "author": "Me",
+    "title": "Mama Mia !",
+    "author": "Mario Bros",
     "url": "http://localhost:3003",
-    "likes": 1
+    "likes": 1000
 }
 
 ###
 DELETE http://localhost:3003/api/blogs/5a422a851b54a676234d17f7
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkyMGMwN2FmMGJmNWE1M2E3ZmU1MCIsImlhdCI6MTY4MjUxNDkyOH0.qC7T5ZOj2OtTYJWsR-az19vpwRl7OB6_x7_PpZr0sSs
 
 ###
 PUT http://localhost:3003/api/blogs/5a422a851b54a676234d17f7
