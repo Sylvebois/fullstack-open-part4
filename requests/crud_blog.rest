@@ -1,6 +1,6 @@
 POST http://localhost:3003/api/blogs
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkyMGMwN2FmMGJmNWE1M2E3ZmU1MCIsImlhdCI6MTY4MjUxNDkyOH0.qC7T5ZOj2OtTYJWsR-az19vpwRl7OB6_x7_PpZr0sSs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkzMTRhZTgwZGUzNTJmMDFjZWY1NCIsImlhdCI6MTY4MjU5MzY2OH0.8arICmUFDefVzyBzU8f2nQlJ5bbMIZYjAjlub1LQGg8
 
 {
     "title": "Mama Mia !",
@@ -10,8 +10,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb
 }
 
 ###
-DELETE http://localhost:3003/api/blogs/5a422a851b54a676234d17f7
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkyMGMwN2FmMGJmNWE1M2E3ZmU1MCIsImlhdCI6MTY4MjUxNDkyOH0.qC7T5ZOj2OtTYJWsR-az19vpwRl7OB6_x7_PpZr0sSs
+DELETE http://localhost:3003/api/blogs/644a57aa37d3686f1a8142de
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjY0NDkzMTRhZTgwZGUzNTJmMDFjZWY1NCIsImlhdCI6MTY4MjU5MzY2OH0.8arICmUFDefVzyBzU8f2nQlJ5bbMIZYjAjlub1LQGg8
 
 ###
 PUT http://localhost:3003/api/blogs/5a422a851b54a676234d17f7
