@@ -1,7 +1,6 @@
-const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1, id: 1 })
@@ -21,23 +20,21 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   const blog = new Blog(request.body)
+  const user = request.user
 
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-    if (!decodedToken.id) {
-      response.status(401).json({ error: 'Invalid token' })
+    if (!user) {
+      response.status(404).json({ error: 'User not found' })
     }
     else {
-      const users = await User.findById(decodedToken.id)
-      blog.user = users._id
+      blog.user = user._id
 
       const result = await blog.save()
 
-      users.blogs = users.blogs.concat(result.id)
-      await users.save()
+      user.blogs = user.blogs.concat(result.id)
+      await user.save()
 
       response.status(201).json(result)
     }
@@ -65,18 +62,18 @@ blogsRouter.put('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
   try {
     const blog = await Blog.findById(request.params.id)
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    const user = request.user
 
     if (!blog) {
       response.status(404).end()
     }
-    else if (!decodedToken.id) {
-      response.status(401).json({ error: 'Invalid token' })
+    else if (!user) {
+      response.status(404).json({ error: 'User not found' })
     }
-    else if (blog.user.toString() !== decodedToken.id.toString()) {
+    else if (blog.user.toString() !== user._id.toString()) {
       response.status(401).json({ error: 'User not allowed to delete this blog' })
     }
     else {
