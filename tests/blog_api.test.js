@@ -1,15 +1,23 @@
+const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 
-const { BLOGS } = require('./testData')
+const { BLOGS, USERS } = require('./testData')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 beforeEach(async () => {
+  await User.deleteMany({})
   await Blog.deleteMany({})
 
-  const blogsObj = BLOGS.map(blog => new Blog(blog))
+  const saltRounds = 10
+  const passHash = await bcrypt.hash(USERS[0].password, saltRounds)
+  const defaultUser = new User({ username: USERS[0].username, name: USERS[0].name, passHash })
+  const createdUser = await defaultUser.save()
+
+  const blogsObj = BLOGS.map(blog => new Blog({ ...blog, user: createdUser._id }))
   const savePromises = blogsObj.map(blog => blog.save())
 
   await Promise.all(savePromises)
