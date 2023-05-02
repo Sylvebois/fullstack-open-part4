@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
@@ -8,16 +9,29 @@ const { BLOGS, USERS } = require('./testData')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
-beforeEach(async () => {
+let defaultUser = null
+
+beforeAll(async () => {
   await User.deleteMany({})
-  await Blog.deleteMany({})
 
   const saltRounds = 10
   const passHash = await bcrypt.hash(USERS[0].password, saltRounds)
-  const defaultUser = new User({ username: USERS[0].username, name: USERS[0].name, passHash })
-  const createdUser = await defaultUser.save()
+  const user = new User({ username: USERS[0].username, name: USERS[0].name, passHash })
+  const createdUser = await user.save()
 
-  const blogsObj = BLOGS.map(blog => new Blog({ ...blog, user: createdUser._id }))
+  const result = await api
+    .post('/api/login')
+    .set('Accept', 'application/json')
+    .send({ username: USERS[0].username, password: USERS[0].password })
+
+  defaultUser = result.body
+  defaultUser.id = createdUser._id.toString()
+})
+
+beforeEach(async () => {
+  await Blog.deleteMany({})
+
+  const blogsObj = BLOGS.map(blog => new Blog({ ...blog, user: defaultUser.id }))
   const savePromises = blogsObj.map(blog => blog.save())
 
   await Promise.all(savePromises)
@@ -46,6 +60,7 @@ describe('Blog reading checks', () => {
       author: 'Michael Chan',
       url: 'https://reactpatterns.com/',
       likes: 7,
+      user: defaultUser.id
     }
 
     const response = await api.get('/api/blogs/5a422a851b54a676234d17f7')
@@ -77,15 +92,15 @@ describe('Blog update checks', () => {
       author: 'Michael Chan',
       url: 'https://reactpatterns.com/',
       likes: 2,
+      user: defaultUser.id
     }
 
     const response = await api
       .put('/api/blogs/5a422a851b54a676234d17f7')
-      .set('Accept', 'application/json')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}`, 'Accept': 'application/json' })
       .send({ likes: 2 })
 
     expect(response.body).toEqual(awaitedData)
-
   })
 
   test('Error 404 on unknow id', async () => {
@@ -105,19 +120,21 @@ describe('Blog deletion checks', () => {
   test('Return 204 on valid id', async () => {
     await api
       .delete('/api/blogs/5a422a851b54a676234d17f7')
-      .set('Accept', 'application/json')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}`, 'Accept': 'application/json' })
       .expect(204)
   })
 
   test('Error 404 on unknow id', async () => {
     await api
       .delete('/api/blogs/5a422a851b54a676234d17f0')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}` })
       .expect(404)
   })
 
   test('Error 400 on invalid id', async () => {
     await api
       .delete('/api/blogs/wrongId')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}` })
       .expect(400)
   })
 })
@@ -163,7 +180,7 @@ describe('Blog creation checks', () => {
     await api
       .post('/api/blogs')
       .send(blog)
-      .set('Accept', 'application/json')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}`, 'Accept': 'application/json' })
       .expect(400)
   })
 
@@ -177,8 +194,22 @@ describe('Blog creation checks', () => {
     await api
       .post('/api/blogs')
       .send(blog)
-      .set('Accept', 'application/json')
+      .set({ 'Authorization': `Bearer ${defaultUser.token}`, 'Accept': 'application/json' })
       .expect(400)
+  })
+
+  test('Error 401 when missing token', async () => {
+    const blog = new Blog({
+      title: 'The missing likes data for a post',
+      author: 'Me',
+      url: 'http://localhost:3003'
+    })
+
+    await api
+      .post('/api/blogs')
+      .send(blog)
+      .set('Accept', 'application/json')
+      .expect(401)
   })
 })
 
